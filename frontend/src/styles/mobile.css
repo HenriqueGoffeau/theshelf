@@ -1,0 +1,422 @@
+.app-mobile {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+.m-head {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex: none;
+  padding: calc(10px + env(safe-area-inset-top)) 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(36, 26, 20, 0.94);
+  backdrop-filter: blur(10px);
+}
+
+.m-head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.m-wordmark {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 4px;
+}
+
+.m-round {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--ink-20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--accent);
+  flex: none;
+}
+
+.m-search {
+  height: 46px;
+  padding: 0 18px;
+}
+
+.m-search input {
+  font-size: 16px;
+}
+
+.m-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 -20px;
+  padding: 0 20px;
+  scrollbar-width: none;
+}
+
+.m-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.m-chips .chip {
+  height: 44px;
+  padding: 0 16px;
+  font-size: 15px;
+}
+
+.m-chips .chip-dot {
+  width: 7px;
+  height: 7px;
+}
+
+.m-chips .chip-count {
+  font-size: 11px;
+}
+
+.m-body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 4px;
+}
+
+.m-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 20px 20px;
+}
+
+.m-title {
+  font-family: var(--font-display);
+  font-size: 34px;
+  letter-spacing: 0.5px;
+}
+
+.app-mobile .shelf-block .shelf-head {
+  padding: 0 20px 8px;
+}
+
+.app-mobile .shelf-block .shelf-row {
+  height: 176px;
+  padding: 0 20px;
+}
+
+.app-mobile .shelf-block .plank {
+  height: 13px;
+  margin: 0 8px;
+  box-shadow:
+    0 12px 22px -9px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 214, 150, 0.16);
+}
+
+.app-mobile .spine {
+  border-radius: 3px 3px 0 0;
+  box-shadow:
+    inset -4px 0 7px rgba(0, 0, 0, 0.38),
+    inset 2px 0 0 rgba(255, 255, 255, 0.09),
+    0 -2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.app-mobile .spine-title {
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  max-height: calc(var(--h) - 24px);
+}
+
+.app-mobile .spine-band {
+  display: none;
+}
+
+.app-mobile .spine-add {
+  width: 44px;
+  height: 92px;
+  font-size: 19px;
+  border-radius: 3px 3px 0 0;
+}
+
+.app-mobile .shelf-name {
+  font-size: 17px;
+  letter-spacing: 2.4px;
+}
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  height: calc(76px + env(safe-area-inset-bottom));
+  padding: 10px 12px env(safe-area-inset-bottom);
+  border-top: 1px solid var(--ink-10);
+  background: rgba(20, 13, 9, 0.94);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: flex-start;
+}
+
+.tab {
+  flex: 1;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--ink-45);
+}
+
+.tab.is-on {
+  color: var(--accent);
+}
+
+.tab-glyph {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1;
+}
+
+.tab-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.4px;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 104px;
+  z-index: 65;
+  background: var(--wood-sheet);
+  border-radius: 26px 26px 0 0;
+  box-shadow: var(--shadow-sheet);
+  display: flex;
+  flex-direction: column;
+  animation: sheet-up 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
+  touch-action: pan-y;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.sheet-grab {
+  height: 26px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet-grab::after {
+  content: "";
+  width: 44px;
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(239, 230, 214, 0.3);
+}
+
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 22px 20px;
+}
+
+.sheet-head {
+  display: flex;
+  gap: 18px;
+}
+
+.sheet-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.08;
+}
+
+.sheet-byline {
+  font-size: 16px;
+  color: var(--ink-55);
+}
+
+.sheet .stars button,
+.sheet .stars span {
+  font-size: 25px;
+}
+
+.segment {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.26);
+  border-radius: 999px;
+  padding: 5px;
+}
+
+.segment button {
+  flex: 1;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 16px;
+  color: var(--ink-62);
+}
+
+.segment button.is-on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.sheet .chip {
+  height: 38px;
+  padding: 0 15px;
+  font-size: 15px;
+}
+
+.sheet .note-text {
+  font-size: 17px;
+  line-height: 1.45;
+  font-family: var(--font-body);
+}
+
+.sheet-foot {
+  flex: none;
+  padding: 12px 18px calc(18px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(239, 230, 214, 0.12);
+  background: var(--wood);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sheet-foot input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.28);
+  font-size: 16px;
+}
+
+.send-round {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.room-behind {
+  filter: blur(1.5px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.m-searchbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(10px + env(safe-area-inset-top)) 20px 14px;
+}
+
+.m-searchbar .field {
+  flex: 1;
+  height: 48px;
+  border-color: var(--accent);
+}
+
+.m-searchbar .field input {
+  font-size: 17px;
+}
+
+.m-facets {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 20px 14px;
+  scrollbar-width: none;
+}
+
+.m-facets::-webkit-scrollbar {
+  display: none;
+}
+
+.m-facets .chip {
+  height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.app-mobile .result-title {
+  font-size: 20px;
+}
+
+.m-wish-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  min-height: 88px;
+  border: 1px solid rgba(239, 230, 214, 0.12);
+  border-radius: 10px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.18);
+  text-align: left;
+}
+
+.m-wish-card .cover-blank {
+  width: 46px;
+  height: 68px;
+  flex: none;
+}
+
+.app-mobile .wish-title {
+  font-size: 20px;
+}
+
+.app-mobile .wish-author {
+  font-size: 15px;
+}
+
+.app-mobile .wish-why {
+  font-size: 9px;
+  letter-spacing: 1.2px;
+}
+
+.m-full-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 68;
+  background: var(--wood);
+  display: flex;
+  flex-direction: column;
+  animation: sheet-up 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.m-full-sheet .sheet-body {
+  padding: 8px 20px 30px;
+}

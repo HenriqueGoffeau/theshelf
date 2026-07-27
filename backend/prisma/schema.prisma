@@ -1,0 +1,160 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  runtime             = "nodejs"
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ReadingStatus {
+  unread
+  reading
+  finished
+  aside
+}
+
+enum BookLocation {
+  owned
+  wishlist
+}
+
+enum NoteKind {
+  note
+  review
+  started
+  finished
+}
+
+enum ShelfKind {
+  manual
+  smart
+}
+
+model Author {
+  id             Int      @id @default(autoincrement())
+  name           String   @unique(map: "author_name_unique")
+  nationality    String?
+  openlibraryKey String?  @map("openlibrary_key")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  books BookAuthor[]
+
+  @@map("author")
+}
+
+model Genre {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique(map: "genre_name_unique")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  books BookGenre[]
+
+  @@map("genre")
+}
+
+model Book {
+  id            Int           @id @default(autoincrement())
+  isbn13        String?       @unique(map: "book_isbn13_unique")
+  isbn10        String?
+  title         String
+  subtitle      String?
+  publisher     String?
+  publishedYear Int?          @map("published_year")
+  pageCount     Int?          @map("page_count")
+  language      String?
+  description   String?
+  coverUrl      String?       @map("cover_url")
+  source        String        @default("manual")
+  location      BookLocation  @default(owned)
+  readingStatus ReadingStatus @default(unread) @map("reading_status")
+  rating        Int?          @db.SmallInt
+  wishReason    String?       @map("wish_reason")
+  spineColor    String?       @map("spine_color")
+  spineWidth    Int?          @map("spine_width")
+  spineHeight   Int?          @map("spine_height")
+  acquiredOn    DateTime?     @map("acquired_on") @db.Date
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  authors BookAuthor[]
+  genres  BookGenre[]
+  shelves ShelfBook[]
+  notes   Note[]
+
+  @@index([location], map: "book_location_idx")
+  @@index([title], map: "book_title_idx")
+  @@map("book")
+}
+
+model BookAuthor {
+  bookId   Int @map("book_id")
+  authorId Int @map("author_id")
+  position Int @default(0)
+
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  author Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, authorId])
+  @@index([authorId], map: "book_author_author_idx")
+  @@map("book_author")
+}
+
+model BookGenre {
+  bookId  Int @map("book_id")
+  genreId Int @map("genre_id")
+
+  book  Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, genreId])
+  @@index([genreId], map: "book_genre_genre_idx")
+  @@map("book_genre")
+}
+
+model Shelf {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique(map: "shelf_name_unique")
+  note      String?
+  kind      ShelfKind @default(manual)
+  query     Json?
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  books ShelfBook[]
+
+  @@map("shelf")
+}
+
+model ShelfBook {
+  shelfId  Int      @map("shelf_id")
+  bookId   Int      @map("book_id")
+  position Int      @default(0)
+  addedAt  DateTime @default(now()) @map("added_at") @db.Timestamptz(6)
+
+  shelf Shelf @relation(fields: [shelfId], references: [id], onDelete: Cascade)
+  book  Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@id([shelfId, bookId])
+  @@index([bookId], map: "shelf_book_book_idx")
+  @@map("shelf_book")
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  bookId    Int      @map("book_id")
+  page      Int?
+  kind      NoteKind @default(note)
+  text      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, createdAt(sort: Desc)], map: "note_book_idx")
+  @@index([createdAt(sort: Desc)], map: "note_created_idx")
+  @@map("note")
+}

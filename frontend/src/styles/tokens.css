@@ -1,0 +1,76 @@
+:root {
+  --wood: #241a14;
+  --wood-deep: #1c140f;
+  --wood-sheet: #2c2019;
+  --wood-sunk: rgba(0, 0, 0, 0.22);
+
+  --ink: #efe6d6;
+  --ink-88: rgba(239, 230, 214, 0.88);
+  --ink-80: rgba(239, 230, 214, 0.8);
+  --ink-62: rgba(239, 230, 214, 0.62);
+  --ink-55: rgba(239, 230, 214, 0.55);
+  --ink-45: rgba(239, 230, 214, 0.45);
+  --ink-42: rgba(239, 230, 214, 0.42);
+  --ink-40: rgba(239, 230, 214, 0.4);
+  --ink-38: rgba(239, 230, 214, 0.38);
+  --ink-24: rgba(239, 230, 214, 0.24);
+  --ink-20: rgba(239, 230, 214, 0.2);
+  --ink-18: rgba(239, 230, 214, 0.18);
+  --ink-16: rgba(239, 230, 214, 0.16);
+  --ink-10: rgba(239, 230, 214, 0.1);
+  --ink-06: rgba(239, 230, 214, 0.06);
+
+  --accent: #d9a441;
+  --accent-hi: #efc46b;
+  --accent-ink: #241a14;
+  --accent-wash: rgba(217, 164, 65, 0.14);
+  --accent-line: rgba(217, 164, 65, 0.5);
+  --glow: rgba(255, 196, 116, 0.17);
+
+  --plank-top: #513a27;
+  --plank-bottom: #2c1e14;
+
+  --status-reading: var(--accent);
+  --status-finished: #7fa07a;
+  --status-aside: #a87c6b;
+  --status-unread: rgba(239, 230, 214, 0.35);
+
+  --font-display: "Grenze Gotisch", "Palatino Linotype", Georgia, serif;
+  --font-body: Grenze, Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --spine-gap: 3px;
+  --spine-scale: 1;
+
+  --shadow-drop: 0 16px 30px -12px rgba(0, 0, 0, 0.85);
+  --shadow-sheet: 0 -20px 50px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-accent="terracotta"] {
+  --accent: #c0603f;
+  --accent-hi: #d97a55;
+  --accent-wash: rgba(192, 96, 63, 0.16);
+  --accent-line: rgba(192, 96, 63, 0.55);
+  --glow: rgba(255, 150, 110, 0.15);
+}
+
+:root[data-accent="sage"] {
+  --accent: #8fa37e;
+  --accent-hi: #a9bc97;
+  --accent-wash: rgba(143, 163, 126, 0.16);
+  --accent-line: rgba(143, 163, 126, 0.55);
+  --glow: rgba(190, 220, 170, 0.13);
+}
+
+:root[data-accent="stone"] {
+  --accent: #b9aea0;
+  --accent-hi: #d2c8bb;
+  --accent-wash: rgba(185, 174, 160, 0.16);
+  --accent-line: rgba(185, 174, 160, 0.55);
+  --glow: rgba(230, 220, 205, 0.12);
+}
+
+:root[data-density="tight"] {
+  --spine-gap: 2px;
+  --spine-scale: 0.82;
+}
