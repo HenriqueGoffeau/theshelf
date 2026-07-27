@@ -1,0 +1,23 @@
+services:
+  theshelf-backend:
+    build: ./backend
+    image: theshelf-backend
+    container_name: theshelf-backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    networks:
+      - homelab
+
+  theshelf-frontend:
+    build: ./frontend
+    image: theshelf-frontend
+    container_name: theshelf-frontend
+    restart: unless-stopped
+    depends_on:
+      - theshelf-backend
+    networks:
+      - homelab
+
+networks:
+  homelab:
+  external: true
