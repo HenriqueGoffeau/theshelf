@@ -1,18 +1,23 @@
 const DRAG_THRESHOLD = 5
 const EDGE = 64
+const SCROLL_SPEED = 12
 
 type Commit = (bookId: number, afterBookId: number | null) => Promise<void> | void
 
 export function enableDragReorder(row: HTMLElement, commit: Commit): () => void {
   let dragging: HTMLElement | null = null
+  let slot: HTMLElement | null = null
   let pointerId: number | null = null
   let startX = 0
-  let startScroll = 0
-  let offset = 0
+  let grabX = 0
+  let grabY = 0
+  let lastX = 0
+  let lastY = 0
   let armed = false
   let scrollTimer: number | null = null
 
-  const spines = () => [...row.querySelectorAll<HTMLElement>('.spine')]
+  const others = () =>
+    [...row.querySelectorAll<HTMLElement>('.spine')].filter((node) => node !== dragging)
 
   const stopAutoScroll = () => {
     if (scrollTimer !== null) {
@@ -21,36 +26,92 @@ export function enableDragReorder(row: HTMLElement, commit: Commit): () => void 
     }
   }
 
-  const autoScroll = (clientX: number) => {
+  const place = () => {
+    if (!slot) return
+    let after: HTMLElement | null = null
+
+    for (const node of others()) {
+      const box = node.getBoundingClientRect()
+      if (lastX > box.left + box.width / 2) after = node
+    }
+
+    if (after) {
+      if (after.nextElementSibling !== slot) after.after(slot)
+    } else if (row.firstElementChild !== slot) {
+      row.prepend(slot)
+    }
+  }
+
+  const autoScroll = () => {
     const box = row.getBoundingClientRect()
     const speed =
-      clientX < box.left + EDGE ? -12 : clientX > box.right - EDGE ? 12 : 0
+      lastX < box.left + EDGE ? -SCROLL_SPEED : lastX > box.right - EDGE ? SCROLL_SPEED : 0
 
     if (speed === 0) {
       stopAutoScroll()
       return
     }
     if (scrollTimer !== null) return
+
     scrollTimer = window.setInterval(() => {
+      const before = row.scrollLeft
       row.scrollLeft += speed
+      if (row.scrollLeft !== before) place()
     }, 16)
   }
 
-  const place = (clientX: number) => {
+  const follow = () => {
     if (!dragging) return
-    let after: HTMLElement | null = null
+    dragging.style.left = `${lastX - grabX}px`
+    dragging.style.top = `${lastY - grabY}px`
+  }
 
-    for (const node of spines()) {
-      if (node === dragging) continue
-      const box = node.getBoundingClientRect()
-      if (clientX > box.left + box.width / 2) after = node
-    }
+  const arm = () => {
+    if (!dragging || pointerId === null) return
+    const box = dragging.getBoundingClientRect()
 
-    if (after) {
-      if (after.nextElementSibling !== dragging) after.after(dragging)
-    } else if (row.firstElementChild !== dragging) {
-      row.prepend(dragging)
+    grabX = lastX - box.left
+    grabY = lastY - box.top
+
+    slot = document.createElement('div')
+    slot.className = 'spine-slot'
+    slot.style.width = `${box.width}px`
+    slot.style.height = `${box.height}px`
+    dragging.after(slot)
+
+    dragging.style.position = 'fixed'
+    dragging.style.margin = '0'
+    dragging.style.width = `${box.width}px`
+    dragging.style.height = `${box.height}px`
+    dragging.style.transform = 'none'
+    dragging.style.cursor = 'grabbing'
+    dragging.classList.add('is-dragging')
+    dragging.setPointerCapture(pointerId)
+
+    document.body.classList.add('is-dragging-spine')
+    armed = true
+    follow()
+  }
+
+  const reset = (node: HTMLElement) => {
+    node.classList.remove('is-dragging')
+    node.style.position = ''
+    node.style.margin = ''
+    node.style.width = ''
+    node.style.height = ''
+    node.style.left = ''
+    node.style.top = ''
+    node.style.transform = ''
+    node.style.cursor = 'grab'
+  }
+
+  const swallowNextClick = (node: HTMLElement) => {
+    const swallow = (event: MouseEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
     }
+    node.addEventListener('click', swallow, { capture: true, once: true })
+    window.setTimeout(() => node.removeEventListener('click', swallow, { capture: true }), 0)
   }
 
   const onDown = (event: PointerEvent) => {
@@ -61,44 +122,48 @@ export function enableDragReorder(row: HTMLElement, commit: Commit): () => void 
     dragging = target
     pointerId = event.pointerId
     startX = event.clientX
-    startScroll = row.scrollLeft
-    offset = 0
+    lastX = event.clientX
+    lastY = event.clientY
     armed = false
   }
 
   const onMove = (event: PointerEvent) => {
     if (!dragging || event.pointerId !== pointerId) return
 
-    const travelled = event.clientX - startX
+    lastX = event.clientX
+    lastY = event.clientY
+
     if (!armed) {
-      if (Math.abs(travelled) < DRAG_THRESHOLD) return
-      armed = true
-      dragging.classList.add('is-dragging')
-      dragging.setPointerCapture(pointerId)
-      document.body.style.userSelect = 'none'
+      if (Math.abs(event.clientX - startX) < DRAG_THRESHOLD) return
+      arm()
+      return
     }
 
     event.preventDefault()
-    offset = travelled + (row.scrollLeft - startScroll)
-    dragging.style.transform = `translate(${offset}px, -18px) scale(1.03)`
-    place(event.clientX)
-    autoScroll(event.clientX)
+    follow()
+    place()
+    autoScroll()
   }
 
   const finish = async (event: PointerEvent) => {
     if (!dragging || event.pointerId !== pointerId) return
+
     const node = dragging
+    const marker = slot
     const wasArmed = armed
 
     stopAutoScroll()
     dragging = null
+    slot = null
     pointerId = null
     armed = false
-    document.body.style.userSelect = ''
-    node.classList.remove('is-dragging')
-    node.style.transform = ''
+    document.body.classList.remove('is-dragging-spine')
+    reset(node)
 
-    if (!wasArmed) return
+    if (!wasArmed || !marker) return
+
+    marker.replaceWith(node)
+    swallowNextClick(node)
 
     const bookId = Number(node.dataset.bookId)
     const previous = node.previousElementSibling as HTMLElement | null
@@ -108,14 +173,21 @@ export function enableDragReorder(row: HTMLElement, commit: Commit): () => void 
     await commit(bookId, afterBookId)
   }
 
+  const onUp = (event: PointerEvent) => void finish(event)
+
   row.addEventListener('pointerdown', onDown)
   row.addEventListener('pointermove', onMove)
-  row.addEventListener('pointerup', (event) => void finish(event))
-  row.addEventListener('pointercancel', (event) => void finish(event))
+  row.addEventListener('pointerup', onUp)
+  row.addEventListener('pointercancel', onUp)
 
   return () => {
     stopAutoScroll()
+    if (dragging) reset(dragging)
+    slot?.remove()
+    document.body.classList.remove('is-dragging-spine')
     row.removeEventListener('pointerdown', onDown)
     row.removeEventListener('pointermove', onMove)
+    row.removeEventListener('pointerup', onUp)
+    row.removeEventListener('pointercancel', onUp)
   }
 }

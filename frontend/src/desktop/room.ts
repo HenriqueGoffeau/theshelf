@@ -93,7 +93,7 @@ export function desktopRoom(options: RoomOptions): HTMLElement {
           }),
       },
       el('span', { text: collection ? collection.name : 'The whole room' }),
-      el('span', { class: 'chip-count', text: `${room.collections.length} shelves ▾` }),
+      el('span', { class: 'chip-count', text: `${room.collections.length + 1} shelves ▾` }),
     )
 
     mount(
