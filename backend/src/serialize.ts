@@ -1,6 +1,6 @@
 import type { Prisma } from './generated/prisma/client.ts'
 import { resolveSpine } from './spine.ts'
-import type { BookLocation, ReadingStatus } from './spine.ts'
+import type { BookLocation, ReadingStatus, SpineInk } from './spine.ts'
 
 export const spineSelect = {
   id: true,
@@ -12,6 +12,7 @@ export const spineSelect = {
   coverUrl: true,
   pageCount: true,
   spineColor: true,
+  spineInk: true,
   spineWidth: true,
   spineHeight: true,
   authors: {
@@ -31,6 +32,7 @@ export const bookSelect = {
   coverUrl: true,
   pageCount: true,
   spineColor: true,
+  spineInk: true,
   spineWidth: true,
   spineHeight: true,
   isbn13: true,
@@ -40,6 +42,7 @@ export const bookSelect = {
   language: true,
   description: true,
   source: true,
+  feedback: true,
   wishReason: true,
   acquiredOn: true,
   createdAt: true,
@@ -70,6 +73,7 @@ export type SpineRow = {
   coverUrl: string | null
   pageCount: number | null
   spineColor: string | null
+  spineInk: SpineInk | null
   spineWidth: number | null
   spineHeight: number | null
   authors: { author: { name: string } }[]
@@ -83,6 +87,7 @@ export type BookRow = SpineRow & {
   language: string | null
   description: string | null
   source: string
+  feedback: string | null
   wishReason: string | null
   acquiredOn: Date | null
   createdAt: Date
@@ -130,6 +135,7 @@ export function toBook(book: BookRow) {
     language: book.language,
     description: book.description,
     source: book.source,
+    feedback: book.feedback,
     wishReason: book.wishReason,
     acquiredOn: toDateOnly(book.acquiredOn),
     createdAt: book.createdAt,

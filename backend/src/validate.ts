@@ -46,6 +46,19 @@ export function optionalEnum<T extends string>(
   return value as T
 }
 
+export function nullableEnum<T extends string>(
+  value: unknown,
+  field: string,
+  allowed: readonly T[],
+): T | null | undefined {
+  if (value === undefined) return undefined
+  if (value === null || value === '') return null
+  if (typeof value !== 'string' || !allowed.includes(value as T)) {
+    throw badRequest(`${field} must be one of: ${allowed.join(', ')}`)
+  }
+  return value as T
+}
+
 export function optionalDate(value: unknown, field: string): string | null | undefined {
   if (value === undefined) return undefined
   if (value === null || value === '') return null

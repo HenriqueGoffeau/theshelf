@@ -59,10 +59,13 @@ export function stars(rating: number | null): string {
 }
 
 export function spineVars(spine: Spine): Record<string, string> {
+  const dark = spine.spineInk === 'dark'
   return {
     '--w': `${spine.spineWidth}px`,
     '--h': `${spine.spineHeight}px`,
     '--bg': spine.spineColor,
+    '--spine-ink': dark ? 'var(--wood-deep)' : 'var(--ink)',
+    '--spine-rule': dark ? 'rgba(0, 0, 0, 0.22)' : 'rgba(255, 255, 255, 0.22)',
   }
 }
 
