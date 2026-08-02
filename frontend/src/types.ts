@@ -2,6 +2,7 @@ export type ReadingStatus = 'unread' | 'reading' | 'finished' | 'aside'
 export type BookLocation = 'owned' | 'wishlist'
 export type NoteKind = 'note' | 'review' | 'started' | 'finished'
 export type ShelfKind = 'manual' | 'smart'
+export type SpineInk = 'light' | 'dark'
 export type Facet = 'books' | 'notes' | 'wishlist' | 'authors'
 
 export type Spine = {
@@ -15,6 +16,7 @@ export type Spine = {
   coverUrl: string | null
   pageCount: number | null
   spineColor: string
+  spineInk: SpineInk
   spineWidth: number
   spineHeight: number
   spineAuto: boolean
@@ -169,6 +171,7 @@ export type BookPayload = Partial<{
   rating: number | null
   wishReason: string | null
   spineColor: string | null
+  spineInk: SpineInk | null
   spineWidth: number | null
   spineHeight: number | null
   acquiredOn: string | null

@@ -1,6 +1,6 @@
 import type { Prisma } from './generated/prisma/client.ts'
 import { resolveSpine } from './spine.ts'
-import type { BookLocation, ReadingStatus } from './spine.ts'
+import type { BookLocation, ReadingStatus, SpineInk } from './spine.ts'
 
 export const spineSelect = {
   id: true,
@@ -12,6 +12,7 @@ export const spineSelect = {
   coverUrl: true,
   pageCount: true,
   spineColor: true,
+  spineInk: true,
   spineWidth: true,
   spineHeight: true,
   authors: {
@@ -31,6 +32,7 @@ export const bookSelect = {
   coverUrl: true,
   pageCount: true,
   spineColor: true,
+  spineInk: true,
   spineWidth: true,
   spineHeight: true,
   isbn13: true,
@@ -70,6 +72,7 @@ export type SpineRow = {
   coverUrl: string | null
   pageCount: number | null
   spineColor: string | null
+  spineInk: SpineInk | null
   spineWidth: number | null
   spineHeight: number | null
   authors: { author: { name: string } }[]

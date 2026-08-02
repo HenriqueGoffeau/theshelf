@@ -1,15 +1,21 @@
 import { api, coverProxy } from '../api.ts'
-import { sampleCoverColour } from '../colour.ts'
+import { normalizeHex, sampleCoverColour } from '../colour.ts'
 import { el, mount } from '../dom.ts'
 import { libraryChanged } from '../events.ts'
 import { STATUS_LABEL, noteMeta } from '../format.ts'
 import { toast, toastError } from '../toast.ts'
-import type { Book, Note, ReadingStatus } from '../types.ts'
+import type { Book, Note, ReadingStatus, SpineInk } from '../types.ts'
 import { confirmDialog, modal, openOverlay } from './overlay.ts'
 import { shelvePicker } from './shelvePicker.ts'
+import { spineNode } from './spine.ts'
 import { starPicker } from './stars.ts'
 
 const STATUS_CHOICES: ReadingStatus[] = ['reading', 'finished', 'aside']
+
+const INK_CHOICES: { key: SpineInk; label: string }[] = [
+  { key: 'light', label: 'White' },
+  { key: 'dark', label: 'Black' },
+]
 
 type Variant = 'panel' | 'sheet'
 
@@ -230,7 +236,7 @@ export function bookDetail(options: DetailOptions): DetailHandle {
     if (!book) return
     const current = book
 
-    const title = el('input', { class: 'input-block', value: current.title })
+    const title = el('input', { class: 'input-block', value: current.title, oninput: () => paintPreview() })
     const authors = el('input', {
       class: 'input-block',
       value: current.authors.map((a) => a.name).join(', '),
@@ -240,21 +246,91 @@ export function bookDetail(options: DetailOptions): DetailHandle {
     const pages = el('input', { class: 'input-block', type: 'number', value: current.pageCount ?? '' })
     const language = el('input', { class: 'input-block', value: current.language ?? '' })
     const genres = el('input', { class: 'input-block', value: current.genres.map((g) => g.name).join(', ') })
+    const stage = el('div', { class: 'spine-stage' })
+
     const colour = el('input', {
       type: 'color',
+      class: 'hex-picker',
       value: current.spineColor,
-      style: { width: '52px', height: '38px', background: 'none', border: 'none' },
+      oninput: () => {
+        hex.value = colour.value.toUpperCase()
+        hex.classList.remove('is-bad')
+        paintPreview()
+      },
     })
+
+    const hex = el('input', {
+      class: 'input-block hex-input',
+      value: current.spineColor.toUpperCase(),
+      maxLength: 7,
+      autocomplete: 'off',
+      'aria-label': 'Hex colour',
+      oninput: () => {
+        const parsed = normalizeHex(hex.value)
+        hex.classList.toggle('is-bad', parsed === null)
+        if (!parsed) return
+        colour.value = parsed
+        paintPreview()
+      },
+    })
+
     const width = el('input', {
       class: 'input-block',
       type: 'range',
       min: '16',
       max: '60',
       value: String(current.spineWidth),
+      oninput: () => paintPreview(),
     })
+
+    let ink: SpineInk = current.spineInk
+    const inkRow = el('div', { class: 'row wrap', style: { gap: '6px' } })
+
+    const paintInk = () => {
+      mount(
+        inkRow,
+        INK_CHOICES.map((choice) =>
+          el('button', {
+            class: `chip${ink === choice.key ? ' is-on' : ''}`,
+            type: 'button',
+            text: choice.label,
+            onclick: () => {
+              ink = choice.key
+              paintInk()
+              paintPreview()
+            },
+          }),
+        ),
+      )
+    }
+
+    function paintPreview(): void {
+      const spineColor = normalizeHex(hex.value) ?? colour.value
+      mount(
+        stage,
+        el(
+          'div',
+          { class: 'spine-stage-row' },
+          spineNode({
+            ...current,
+            title: title.value.trim() || current.title,
+            spineColor,
+            spineInk: ink,
+            spineWidth: Number(width.value),
+          }),
+        ),
+        el('div', { class: 'plank' }),
+      )
+    }
+
+    paintInk()
+    paintPreview()
 
     const field = (label: string, control: HTMLElement) =>
       el('label', { class: 'form-field' }, el('span', { class: 'label', text: label }), control)
+
+    const group = (label: string, control: HTMLElement) =>
+      el('div', { class: 'form-field' }, el('span', { class: 'label', text: label }), control)
 
     openOverlay({
       content: modal(
@@ -266,7 +342,23 @@ export function bookDetail(options: DetailOptions): DetailHandle {
           field('Authors', authors),
           el('div', { class: 'form-grid' }, field('Publisher', publisher), field('Year', year), field('Pages', pages)),
           el('div', { class: 'form-grid' }, field('Language', language), field('Genres', genres)),
-          el('div', { class: 'form-grid' }, field('Spine colour', colour), field('Spine width', width)),
+          el(
+            'div',
+            { class: 'stack', style: { gap: '10px' } },
+            el('span', { class: 'label', text: 'Spine' }),
+            el(
+              'div',
+              { class: 'spine-editor' },
+              stage,
+              el(
+                'div',
+                { class: 'spine-controls' },
+                group('Colour', el('div', { class: 'hex-row' }, colour, hex)),
+                group('Text', inkRow),
+                field('Width', width),
+              ),
+            ),
+          ),
         ),
         (close) => [
           el('button', {
@@ -305,7 +397,8 @@ export function bookDetail(options: DetailOptions): DetailHandle {
                   publishedYear: year.value ? Number(year.value) : null,
                   pageCount: pages.value ? Number(pages.value) : null,
                   language: language.value.trim() || null,
-                  spineColor: colour.value,
+                  spineColor: normalizeHex(hex.value) ?? colour.value,
+                  spineInk: ink,
                   spineWidth: Number(width.value),
                 },
                 'Entry updated',

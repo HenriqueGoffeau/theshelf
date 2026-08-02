@@ -1,12 +1,11 @@
 import { api } from '../api.ts'
 import { el } from '../dom.ts'
-import { ACCENTS, DENSITIES, getAccent, getDensity, setAccent, setDensity } from '../theme.ts'
-import type { AccentKey, DensityKey } from '../theme.ts'
+import { ACCENTS, getAccent, setAccent } from '../theme.ts'
+import type { AccentKey } from '../theme.ts'
 import { modal, openOverlay } from './overlay.ts'
 
 export function openSettings(onSignedOut: () => void): void {
   const accentRow = el('div', { class: 'row wrap', style: { gap: '8px' } })
-  const densityRow = el('div', { class: 'row', style: { gap: '8px' } })
 
   const paintAccents = () => {
     accentRow.replaceChildren(
@@ -31,24 +30,7 @@ export function openSettings(onSignedOut: () => void): void {
     )
   }
 
-  const paintDensity = () => {
-    densityRow.replaceChildren(
-      ...DENSITIES.map((density) =>
-        el('button', {
-          class: `chip${getDensity() === density.key ? ' is-on' : ''}`,
-          type: 'button',
-          text: density.label,
-          onclick: () => {
-            setDensity(density.key as DensityKey)
-            paintDensity()
-          },
-        }),
-      ),
-    )
-  }
-
   paintAccents()
-  paintDensity()
 
   openOverlay({
     className: 'modal-roomy',
@@ -62,13 +44,6 @@ export function openSettings(onSignedOut: () => void): void {
           { class: 'stack', style: { gap: '8px' } },
           el('span', { class: 'label', text: 'accent' }),
           accentRow,
-        ),
-        el(
-          'div',
-          { class: 'stack', style: { gap: '8px' } },
-          el('span', { class: 'label', text: 'spine density' }),
-          densityRow,
-          el('p', { class: 'empty', text: 'Tight fits more books on a shelf; roomy lets each one breathe.' }),
         ),
       ),
       (close) => [

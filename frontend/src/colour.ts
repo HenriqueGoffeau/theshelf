@@ -4,6 +4,12 @@ function toHex(r: number, g: number, b: number): string {
   return `#${[r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('')}`
 }
 
+export function normalizeHex(value: string): string | null {
+  const hex = value.trim().replace(/^#/, '')
+  const full = hex.length === 3 ? hex.replace(/./g, (char) => char + char) : hex
+  return /^[0-9a-f]{6}$/i.test(full) ? `#${full.toLowerCase()}` : null
+}
+
 export async function sampleCoverColour(url: string): Promise<string | null> {
   const image = new Image()
   image.crossOrigin = 'anonymous'

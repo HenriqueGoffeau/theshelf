@@ -3,10 +3,11 @@ import type { Prisma } from '../generated/prisma/client.ts'
 import { conflict, created, notFound, readJson, type Ctx, type Router } from '../http.ts'
 import { normalizeIsbn, isValidIsbn, splitIsbns } from '../isbn.ts'
 import { bookSelect, fromDateOnly, toBook } from '../serialize.ts'
-import { LOCATIONS, READING_STATUSES } from '../spine.ts'
+import { LOCATIONS, READING_STATUSES, SPINE_INKS } from '../spine.ts'
 import { pruneOrphans, setBookAuthors, setBookGenres } from '../taxonomy.ts'
 import {
   idParam,
+  nullableEnum,
   optionalDate,
   optionalEnum,
   optionalInt,
@@ -132,6 +133,7 @@ function readBookFields(body: BookInput) {
     rating: optionalInt(body.rating, 'rating', 1, 5),
     wishReason: optionalString(body.wishReason, 'wishReason', 300),
     spineColor: optionalString(body.spineColor, 'spineColor', 32),
+    spineInk: nullableEnum(body.spineInk, 'spineInk', SPINE_INKS),
     spineWidth: optionalInt(body.spineWidth, 'spineWidth', 16, 80),
     spineHeight: optionalInt(body.spineHeight, 'spineHeight', 90, 260),
     acquiredOn: optionalDate(body.acquiredOn, 'acquiredOn'),
@@ -206,6 +208,7 @@ export function registerBookRoutes(router: Router): void {
           rating: fields.rating ?? null,
           wishReason: fields.wishReason ?? null,
           spineColor: fields.spineColor ?? null,
+          spineInk: fields.spineInk ?? null,
           spineWidth: fields.spineWidth ?? null,
           spineHeight: fields.spineHeight ?? null,
           acquiredOn: fields.acquiredOn ? fromDateOnly(fields.acquiredOn) : null,
@@ -244,6 +247,7 @@ export function registerBookRoutes(router: Router): void {
     if (fields.rating !== undefined) data.rating = fields.rating
     if (fields.wishReason !== undefined) data.wishReason = fields.wishReason
     if (fields.spineColor !== undefined) data.spineColor = fields.spineColor
+    if (fields.spineInk !== undefined) data.spineInk = fields.spineInk
     if (fields.spineWidth !== undefined) data.spineWidth = fields.spineWidth
     if (fields.spineHeight !== undefined) data.spineHeight = fields.spineHeight
     if (fields.source != null) data.source = fields.source

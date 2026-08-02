@@ -34,6 +34,11 @@ enum ShelfKind {
   smart
 }
 
+enum SpineInk {
+  light
+  dark
+}
+
 model Author {
   id             Int      @id @default(autoincrement())
   name           String   @unique(map: "author_name_unique")
@@ -74,6 +79,7 @@ model Book {
   rating        Int?          @db.SmallInt
   wishReason    String?       @map("wish_reason")
   spineColor    String?       @map("spine_color")
+  spineInk      SpineInk?     @map("spine_ink")
   spineWidth    Int?          @map("spine_width")
   spineHeight   Int?          @map("spine_height")
   acquiredOn    DateTime?     @map("acquired_on") @db.Date

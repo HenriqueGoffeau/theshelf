@@ -171,10 +171,10 @@ textarea::placeholder {
 .spine {
   position: relative;
   flex: none;
-  width: calc(var(--w) * var(--spine-scale));
+  width: var(--w);
   height: var(--h);
   background: var(--bg);
-  color: var(--ink);
+  color: var(--spine-ink, var(--ink));
   border-radius: 2px 2px 0 0;
   display: flex;
   align-items: center;
@@ -253,7 +253,7 @@ body.is-dragging-spine {
   left: 5px;
   right: 5px;
   height: 1px;
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--spine-rule, rgba(255, 255, 255, 0.22));
   pointer-events: none;
 }
 
@@ -489,6 +489,71 @@ textarea.input-block {
   min-height: 90px;
   resize: vertical;
   line-height: 1.55;
+}
+
+.hex-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spine-editor {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.spine-stage {
+  flex: none;
+  width: 132px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 14px;
+  border-radius: 10px;
+  background: var(--wood-sunk);
+  overflow: hidden;
+}
+
+.spine-stage-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.spine-controls {
+  flex: 1;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hex-picker {
+  width: 46px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hex-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.hex-input.is-bad {
+  border-color: rgba(192, 96, 63, 0.6);
+  color: #d98a6f;
 }
 
 .kbd {

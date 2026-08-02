@@ -39,8 +39,7 @@
   --font-body: Grenze, Georgia, "Times New Roman", serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --spine-gap: 3px;
-  --spine-scale: 1;
+  --spine-gap: 1px;
 
   --shadow-drop: 0 16px 30px -12px rgba(0, 0, 0, 0.85);
   --shadow-sheet: 0 -20px 50px rgba(0, 0, 0, 0.6);
@@ -68,9 +67,4 @@
   --accent-wash: rgba(185, 174, 160, 0.16);
   --accent-line: rgba(185, 174, 160, 0.55);
   --glow: rgba(230, 220, 205, 0.12);
-}
-
-:root[data-density="tight"] {
-  --spine-gap: 2px;
-  --spine-scale: 0.82;
 }
