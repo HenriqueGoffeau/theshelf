@@ -42,6 +42,7 @@ export const bookSelect = {
   language: true,
   description: true,
   source: true,
+  feedback: true,
   wishReason: true,
   acquiredOn: true,
   createdAt: true,
@@ -86,6 +87,7 @@ export type BookRow = SpineRow & {
   language: string | null
   description: string | null
   source: string
+  feedback: string | null
   wishReason: string | null
   acquiredOn: Date | null
   createdAt: Date
@@ -133,6 +135,7 @@ export function toBook(book: BookRow) {
     language: book.language,
     description: book.description,
     source: book.source,
+    feedback: book.feedback,
     wishReason: book.wishReason,
     acquiredOn: toDateOnly(book.acquiredOn),
     createdAt: book.createdAt,

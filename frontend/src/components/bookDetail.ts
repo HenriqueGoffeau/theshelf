@@ -232,6 +232,68 @@ export function bookDetail(options: DetailOptions): DetailHandle {
     )
   }
 
+  function editFeedback(): void {
+    if (!book) return
+    const current = book
+    let rating = current.rating
+
+    const text = el('textarea', {
+      class: 'input-block',
+      value: current.feedback ?? '',
+      placeholder: 'What did the whole book leave you with?',
+    })
+
+    openOverlay({
+      content: modal(
+        'Your verdict',
+        el(
+          'div',
+          { class: 'stack' },
+          el(
+            'div',
+            { class: 'form-field' },
+            el('span', { class: 'label', text: 'Rating' }),
+            el(
+              'div',
+              { class: 'row', style: { gap: '10px', alignItems: 'center' } },
+              starPicker(current.rating, (value) => {
+                rating = value
+              }),
+            ),
+          ),
+          el(
+            'label',
+            { class: 'form-field' },
+            el('span', { class: 'label', text: 'Feedback' }),
+            text,
+          ),
+        ),
+        (close) => [
+          current.feedback
+            ? el('button', {
+                class: 'btn btn-danger',
+                type: 'button',
+                text: 'Clear',
+                onclick: async () => {
+                  await save({ rating, feedback: null }, 'Feedback cleared')
+                  close()
+                },
+              })
+            : null,
+          el('button', {
+            class: 'btn btn-accent',
+            type: 'button',
+            text: 'Save',
+            onclick: async () => {
+              await save({ rating, feedback: text.value.trim() || null }, 'Feedback saved')
+              close()
+            },
+          }),
+        ],
+      ),
+    })
+  }
+
   function editDetails(): void {
     if (!book) return
     const current = book
@@ -463,6 +525,31 @@ export function bookDetail(options: DetailOptions): DetailHandle {
       }),
     )
 
+    const feedbackSection = el(
+      'div',
+      { class: 'panel-section' },
+      el(
+        'div',
+        { class: 'row spread' },
+        el('span', { class: 'label', text: 'feedback' }),
+        el('button', {
+          class: 'label',
+          type: 'button',
+          text: book.feedback ? '✎ edit' : '＋ write',
+          onclick: editFeedback,
+        }),
+      ),
+      book.feedback
+        ? el('p', { class: 'feedback-text', text: book.feedback })
+        : el('button', {
+            class: 'empty',
+            type: 'button',
+            style: { textAlign: 'left' },
+            text: 'Nothing said about the whole of it yet. What did it leave you with?',
+            onclick: editFeedback,
+          }),
+    )
+
     const notesSection = el(
       'div',
       { class: options.variant === 'panel' ? 'panel-notes' : 'stack' },
@@ -503,6 +590,7 @@ export function bookDetail(options: DetailOptions): DetailHandle {
             onclick: () => void save({ location: 'owned' }, 'On your shelves now'),
           })
         : statusControl(),
+      feedbackSection,
       el(
         'div',
         { class: 'panel-section' },

@@ -35,6 +35,7 @@ export type Book = Spine & {
   language: string | null
   description: string | null
   source: string
+  feedback: string | null
   wishReason: string | null
   acquiredOn: string | null
   createdAt: string
@@ -169,6 +170,7 @@ export type BookPayload = Partial<{
   location: BookLocation
   readingStatus: ReadingStatus
   rating: number | null
+  feedback: string | null
   wishReason: string | null
   spineColor: string | null
   spineInk: SpineInk | null
