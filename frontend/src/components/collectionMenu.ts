@@ -3,7 +3,7 @@ import { el, mount } from '../dom.ts'
 import { toastError } from '../toast.ts'
 import type { Shelf } from '../types.ts'
 import { openPopover } from './overlay.ts'
-import { openCreateShelf } from './shelvePicker.ts'
+import { openCreateShelf, openDeleteShelf } from './shelvePicker.ts'
 
 type Options = {
   anchor: HTMLElement
@@ -20,21 +20,37 @@ export function openCollectionMenu(options: Options): void {
   const list = el('div', { class: 'stack', style: { gap: '2px' } })
   let shelves: Shelf[] = []
 
-  const entry = (label: string, note: string, active: boolean, onClick: () => void) =>
+  const entry = (
+    label: string,
+    note: string,
+    active: boolean,
+    onClick: () => void,
+    onDelete?: () => void,
+  ) =>
     el(
-      'button',
-      {
-        class: `menu-row${active ? ' is-on' : ''}`,
-        type: 'button',
-        onclick: onClick,
-      },
+      'div',
+      { class: `menu-row${active ? ' is-on' : ''}` },
       el(
-        'span',
-        { class: 'grow', style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
-        el('span', { class: 'menu-row-title', text: label }),
-        note ? el('span', { class: 'menu-row-sub', text: note }) : null,
+        'button',
+        { class: 'menu-row-open', type: 'button', onclick: onClick },
+        el(
+          'span',
+          { class: 'grow', style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
+          el('span', { class: 'menu-row-title', text: label }),
+          note ? el('span', { class: 'menu-row-sub', text: note }) : null,
+        ),
+        active ? el('span', { class: 'label', text: 'showing' }) : null,
       ),
-      active ? el('span', { class: 'label', text: 'showing' }) : null,
+      onDelete
+        ? el('button', {
+            class: 'menu-row-kill',
+            type: 'button',
+            text: '✕',
+            title: `Take down "${label}"`,
+            'aria-label': `Take down "${label}"`,
+            onclick: onDelete,
+          })
+        : null,
     )
 
   const paint = (close: () => void) => {
@@ -63,6 +79,12 @@ export function openCollectionMenu(options: Options): void {
               () => {
                 options.onPick(shelf.id)
                 close()
+              },
+              () => {
+                close()
+                void openDeleteShelf(shelf, () => {
+                  if (options.current === shelf.id) options.onPick(null)
+                })
               },
             ),
           ),

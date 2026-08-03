@@ -1,8 +1,9 @@
 import { api } from '../api.ts'
 import { el, mount } from '../dom.ts'
+import { libraryChanged } from '../events.ts'
 import { toast, toastError } from '../toast.ts'
 import type { Book, Shelf } from '../types.ts'
-import { modal, openOverlay } from './overlay.ts'
+import { confirmDialog, modal, openOverlay } from './overlay.ts'
 
 export function openCreateShelf(onCreated: (shelfId: number) => void): void {
   const name = el('input', { class: 'input-block', placeholder: 'Books that broke me' })
@@ -41,6 +42,29 @@ export function openCreateShelf(onCreated: (shelfId: number) => void): void {
       ],
     ),
   })
+}
+
+export async function openDeleteShelf(shelf: Shelf, onDeleted: () => void): Promise<void> {
+  const kept =
+    shelf.bookCount === 0
+      ? 'Nothing is standing on it.'
+      : `The ${shelf.bookCount} ${shelf.bookCount === 1 ? 'book stays' : 'books stay'} in your library.`
+
+  const yes = await confirmDialog(
+    'Take down this shelf?',
+    `"${shelf.name}" goes. ${kept}`,
+    'Take it down',
+  )
+  if (!yes) return
+
+  try {
+    await api.deleteShelf(shelf.id)
+    libraryChanged()
+    toast(`"${shelf.name}" is down`)
+    onDeleted()
+  } catch (err) {
+    toastError(err)
+  }
 }
 
 export function shelvePicker(book: Book, onChanged: () => void): void {
