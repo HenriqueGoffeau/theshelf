@@ -713,6 +713,20 @@ textarea.input-block {
   background: var(--accent-wash);
 }
 
+.already-owned {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  line-height: 1.5;
+  color: #d98a6f;
+  border-left: 2px solid rgba(192, 96, 63, 0.5);
+  padding: 1px 0 1px 10px;
+}
+
+.already-owned:empty {
+  display: none;
+}
+
 .menu-row-open {
   display: flex;
   align-items: center;

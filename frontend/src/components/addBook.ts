@@ -50,6 +50,7 @@ export function openAddBook(options: AddOptions = {}): void {
   })
   const results = el('div', { class: 'stack', style: { gap: '0' } })
   const status = el('div', { class: 'mono' })
+  const owned = el('p', { class: 'already-owned' })
 
   const modeRow = el('div', { class: 'row', style: { gap: '8px' } })
 
@@ -172,6 +173,32 @@ export function openAddBook(options: AddOptions = {}): void {
     title.focus()
   }
 
+  const ISBN_SHAPE = /^(?:\d{9}[\dX]|\d{13})$/
+  let ownedToken = 0
+
+  const checkOwned = async () => {
+    const compact = input.value.replace(/[\s-]/g, '').toUpperCase()
+    const token = (ownedToken += 1)
+
+    if (mode !== 'isbn' || !ISBN_SHAPE.test(compact)) {
+      mount(owned)
+      return
+    }
+
+    try {
+      const found = await api.ownedIsbn(compact)
+      if (token !== ownedToken) return
+      mount(
+        owned,
+        found.book
+          ? `Already ${found.book.location === 'wishlist' ? 'on your wishlist' : 'on your shelves'} — "${found.book.title}"`
+          : null,
+      )
+    } catch {
+      if (token === ownedToken) mount(owned)
+    }
+  }
+
   const run = async () => {
     const term = input.value.trim()
     if (!term) {
@@ -248,6 +275,7 @@ export function openAddBook(options: AddOptions = {}): void {
             mode = option.key
             input.placeholder = option.key === 'isbn' ? '978-0-14-118776-1' : 'Title of the book…'
             paintModes()
+            void checkOwned()
             void run()
           },
         }),
@@ -256,13 +284,18 @@ export function openAddBook(options: AddOptions = {}): void {
   }
 
   let debounce: number | undefined
+  let ownedDebounce: number | undefined
   input.addEventListener('input', () => {
     window.clearTimeout(debounce)
+    window.clearTimeout(ownedDebounce)
+    ownedDebounce = window.setTimeout(() => void checkOwned(), 180)
     debounce = window.setTimeout(() => void run(), 420)
   })
   input.addEventListener('keydown', (event) => {
     if ((event as KeyboardEvent).key === 'Enter') {
       window.clearTimeout(debounce)
+      window.clearTimeout(ownedDebounce)
+      void checkOwned()
       void run()
     }
   })
@@ -279,6 +312,7 @@ export function openAddBook(options: AddOptions = {}): void {
           ? el('p', { class: 'empty', text: 'Search by name — no ISBN needed for books you do not have yet.' })
           : modeRow,
         input,
+        owned,
         status,
         el('div', { style: { maxHeight: '46vh', overflowY: 'auto' } }, results),
         el('button', {
