@@ -89,6 +89,48 @@ textarea::placeholder {
   display: none;
 }
 
+.scroll-fade {
+  --fade-top: 0px;
+  --fade-bottom: 0px;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.25s ease;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    transparent 100%
+  );
+}
+
+.scroll-fade:hover,
+.scroll-fade:focus-within {
+  scrollbar-color: var(--ink-16) transparent;
+}
+
+.scroll-fade::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scroll-fade::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 5px;
+  transition: background 0.25s ease;
+}
+
+.scroll-fade:hover::-webkit-scrollbar-thumb,
+.scroll-fade:focus-within::-webkit-scrollbar-thumb {
+  background: var(--ink-16);
+}
+
 .glow {
   position: fixed;
   inset: 0;
