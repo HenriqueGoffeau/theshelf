@@ -1,6 +1,7 @@
 import { api } from '../api.ts'
 import { el, mount } from '../dom.ts'
 import { libraryChanged } from '../events.ts'
+import { getState, setState } from '../store.ts'
 import { toast, toastError } from '../toast.ts'
 import type { Book, Shelf } from '../types.ts'
 import { confirmDialog, modal, openOverlay } from './overlay.ts'
@@ -44,7 +45,7 @@ export function openCreateShelf(onCreated: (shelfId: number) => void): void {
   })
 }
 
-export async function openDeleteShelf(shelf: Shelf, onDeleted: () => void): Promise<void> {
+export async function openDeleteShelf(shelf: Shelf): Promise<void> {
   const kept =
     shelf.bookCount === 0
       ? 'Nothing is standing on it.'
@@ -59,9 +60,9 @@ export async function openDeleteShelf(shelf: Shelf, onDeleted: () => void): Prom
 
   try {
     await api.deleteShelf(shelf.id)
+    if (getState().collection === shelf.id) setState({ collection: null })
     libraryChanged()
     toast(`"${shelf.name}" is down`)
-    onDeleted()
   } catch (err) {
     toastError(err)
   }

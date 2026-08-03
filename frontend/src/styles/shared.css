@@ -89,6 +89,48 @@ textarea::placeholder {
   display: none;
 }
 
+.scroll-fade {
+  --fade-top: 0px;
+  --fade-bottom: 0px;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.25s ease;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    transparent 100%
+  );
+}
+
+.scroll-fade:hover,
+.scroll-fade:focus-within {
+  scrollbar-color: var(--ink-16) transparent;
+}
+
+.scroll-fade::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scroll-fade::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 5px;
+  transition: background 0.25s ease;
+}
+
+.scroll-fade:hover::-webkit-scrollbar-thumb,
+.scroll-fade:focus-within::-webkit-scrollbar-thumb {
+  background: var(--ink-16);
+}
+
 .glow {
   position: fixed;
   inset: 0;
@@ -711,6 +753,20 @@ textarea.input-block {
 
 .menu-row.is-on {
   background: var(--accent-wash);
+}
+
+.already-owned {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  line-height: 1.5;
+  color: #d98a6f;
+  border-left: 2px solid rgba(192, 96, 63, 0.5);
+  padding: 1px 0 1px 10px;
+}
+
+.already-owned:empty {
+  display: none;
 }
 
 .menu-row-open {

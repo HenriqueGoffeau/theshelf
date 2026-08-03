@@ -2,6 +2,7 @@ import type {
   Author,
   Book,
   BookDraft,
+  BookLocation,
   BookPage,
   BookPayload,
   Facets,
@@ -122,6 +123,11 @@ export const api = {
     request<{ found: boolean; sources: string[]; book: BookDraft | null; existingBookId: number | null }>(
       'GET',
       `/api/lookup/isbn/${encodeURIComponent(isbn)}`,
+    ),
+  ownedIsbn: (isbn: string) =>
+    request<{ book: { id: number; title: string; location: BookLocation } | null }>(
+      'GET',
+      `/api/lookup/owned/${encodeURIComponent(isbn)}`,
     ),
   lookupTitle: (term: string) =>
     request<{ term: string; sources: string[]; results: BookDraft[] }>(

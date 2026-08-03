@@ -124,7 +124,7 @@ export function desktopRoom(options: RoomOptions): HTMLElement {
               class: 'chip',
               type: 'button',
               text: '✕ Take it down',
-              onclick: () => void openDeleteShelf(collection, () => setState({ collection: null })),
+              onclick: () => void openDeleteShelf(collection),
             })
           : null,
         el('button', {

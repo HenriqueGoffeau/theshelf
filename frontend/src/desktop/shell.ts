@@ -7,6 +7,7 @@ import { highlightSpine } from '../components/spine.ts'
 import { el, mount } from '../dom.ts'
 import { onLibraryChanged } from '../events.ts'
 import { searchShortcut } from '../format.ts'
+import { scrollFade } from '../scrollFade.ts'
 import { getState, setState, subscribe, type View } from '../store.ts'
 import { desktopRoom } from './room.ts'
 import { notesView } from './notes.ts'
@@ -73,7 +74,12 @@ export function mountDesktop(app: HTMLElement, onSignedOut: () => void): () => v
     }
   }
 
+  let dropPanelFade: (() => void) | null = null
+
   const paintPanel = () => {
+    dropPanelFade?.()
+    dropPanelFade = null
+
     const state = getState()
     if (!state.book) {
       mount(
@@ -96,6 +102,7 @@ export function mountDesktop(app: HTMLElement, onSignedOut: () => void): () => v
       onClose: () => setState({ book: null }),
     })
     mount(panelHost, detail.node, detail.footer)
+    dropPanelFade = scrollFade(detail.node)
   }
 
   mount(
@@ -174,5 +181,6 @@ export function mountDesktop(app: HTMLElement, onSignedOut: () => void): () => v
   return () => {
     unsubscribe()
     unlisten()
+    dropPanelFade?.()
   }
 }

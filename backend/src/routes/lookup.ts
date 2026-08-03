@@ -2,7 +2,7 @@ import { Readable } from 'node:stream'
 import { prisma } from '../db.ts'
 import { config } from '../config.ts'
 import { badRequest, HANDLED, notFound, type Ctx, type Router } from '../http.ts'
-import { isValidIsbn, normalizeIsbn, toIsbn13 } from '../isbn.ts'
+import { isValidIsbn, normalizeIsbn, splitIsbns, toIsbn13 } from '../isbn.ts'
 import { lookupIsbn } from '../lookup.ts'
 import { searchByTitle } from '../providers/titlesearch.ts'
 import type { LookupResult } from '../types.ts'
@@ -32,6 +32,21 @@ export function registerLookupRoutes(router: Router): void {
 
     const { book, sources } = await lookupIsbn(isbn)
     return { found: book !== null, sources, book, existingBookId: existing?.id ?? null }
+  })
+
+  router.get('/api/lookup/owned/:isbn', async ({ params }: Ctx) => {
+    const isbn = normalizeIsbn(params.isbn)
+    if (!isbn || !isValidIsbn(isbn)) return { book: null }
+
+    const { isbn13, isbn10 } = splitIsbns(isbn)
+    if (!isbn13) return { book: null }
+
+    const book = await prisma.book.findFirst({
+      where: isbn10 ? { OR: [{ isbn13 }, { isbn10 }] } : { isbn13 },
+      select: { id: true, title: true, location: true },
+    })
+
+    return { book }
   })
 
   router.get('/api/lookup/title', async ({ query: q }: Ctx) => {

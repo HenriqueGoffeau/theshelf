@@ -6,6 +6,7 @@ import { openSettings } from '../components/settings.ts'
 import { highlightSpine } from '../components/spine.ts'
 import { el, mount } from '../dom.ts'
 import { onLibraryChanged } from '../events.ts'
+import { scrollFade } from '../scrollFade.ts'
 import { getState, setState, subscribe, type View } from '../store.ts'
 import { notesView } from '../desktop/notes.ts'
 import { wishlistView } from '../desktop/wishlist.ts'
@@ -37,8 +38,11 @@ export function mountMobile(app: HTMLElement, onSignedOut: () => void): () => vo
   let counts: RoomCounts = EMPTY_COUNTS
   let sheet: HTMLElement | null = null
   let sheetBackdrop: HTMLElement | null = null
+  let dropSheetFade: (() => void) | null = null
 
   const closeSheet = () => {
+    dropSheetFade?.()
+    dropSheetFade = null
     sheet?.remove()
     sheetBackdrop?.remove()
     sheet = null
@@ -61,13 +65,9 @@ export function mountMobile(app: HTMLElement, onSignedOut: () => void): () => vo
     })
 
     const grab = el('div', { class: 'sheet-grab' })
-    sheet = el(
-      'div',
-      { class: 'sheet' },
-      grab,
-      el('div', { class: 'sheet-body' }, detail.node),
-      detail.footer,
-    )
+    const sheetBody = el('div', { class: 'sheet-body' }, detail.node)
+    sheet = el('div', { class: 'sheet' }, grab, sheetBody, detail.footer)
+    dropSheetFade = scrollFade(sheetBody)
 
     sheetBackdrop = el('div', { class: 'backdrop', onclick: closeSheet })
 
