@@ -45,10 +45,10 @@ export function shelfRowNode(options: Options): HTMLElement {
 
   const ghosts = el(
     'div',
-    { class: 'shelf-ghosts' },
+    { class: 'shelf-skeleton' },
     GHOSTS.map((height, index) =>
       el('span', {
-        class: 'spine-ghost',
+        class: 'spine-skeleton',
         style: { height: `${height}px`, width: `${30 + (index % 4) * 5}px` },
       }),
     ),

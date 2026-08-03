@@ -108,8 +108,9 @@
 }
 
 .app-mobile .shelf-block .shelf-row {
-  height: 176px;
-  padding: 0 20px;
+  height: 232px;
+  padding: 28px 20px 0;
+  margin-top: -28px;
 }
 
 .app-mobile .shelf-block .plank {

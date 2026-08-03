@@ -127,8 +127,9 @@
 }
 
 .shelf-block .shelf-row {
-  height: 210px;
-  padding: 0 10px;
+  height: 238px;
+  padding: 28px 10px 0;
+  margin-top: -28px;
 }
 
 .build-shelf {

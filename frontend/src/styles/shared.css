@@ -210,14 +210,14 @@ textarea::placeholder {
   display: none;
 }
 
-.shelf-ghosts {
+.shelf-skeleton {
   display: flex;
   align-items: flex-end;
   gap: var(--spine-gap);
   flex: none;
 }
 
-.spine-ghost {
+.spine-skeleton {
   flex: none;
   border-radius: 2px 2px 0 0;
   background: linear-gradient(180deg, var(--ink-06), rgba(239, 230, 214, 0.02));
@@ -236,6 +236,7 @@ textarea::placeholder {
   flex: none;
   width: var(--w);
   height: var(--h);
+  max-height: 100%;
   background: var(--bg);
   color: var(--spine-ink, var(--ink));
   border-radius: 2px 2px 0 0;
