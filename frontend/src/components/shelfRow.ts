@@ -15,6 +15,8 @@ type Options = {
   reorderable?: boolean
 }
 
+const GHOSTS = [150, 168, 134, 178, 156, 142, 172, 160, 146, 164]
+
 export function shelfRowNode(options: Options): HTMLElement {
   const { row } = options
   let cursor = row.nextCursor
@@ -22,12 +24,14 @@ export function shelfRowNode(options: Options): HTMLElement {
 
   const scroller = el('div', { class: 'shelf-row hide-scroll' })
   const rendered = new Set<number>()
+  const sentinel = el('div', { style: { flex: 'none', width: '1px', height: '100%' } })
 
   const paint = (books: Spine[]) => {
+    const fragment = document.createDocumentFragment()
     for (const spine of books) {
       if (rendered.has(spine.id)) continue
       rendered.add(spine.id)
-      scroller.appendChild(
+      fragment.appendChild(
         spineNode(spine, {
           selected: spine.id === getState().book,
           dim: options.isDim(spine),
@@ -36,13 +40,21 @@ export function shelfRowNode(options: Options): HTMLElement {
         }),
       )
     }
+    sentinel.before(fragment)
   }
 
-  paint(row.books)
+  const ghosts = el(
+    'div',
+    { class: 'shelf-ghosts' },
+    GHOSTS.map((height, index) =>
+      el('span', {
+        class: 'spine-ghost',
+        style: { height: `${height}px`, width: `${30 + (index % 4) * 5}px` },
+      }),
+    ),
+  )
 
-  const sentinel = el('div', { style: { flex: 'none', width: '1px', height: '100%' } })
   scroller.appendChild(sentinel)
-
   if (options.onAdd) scroller.appendChild(addSpineButton(options.onAdd))
 
   const loadMore = async () => {
@@ -51,21 +63,7 @@ export function shelfRowNode(options: Options): HTMLElement {
     try {
       const next = await api.shelfBooks(row.id, cursor)
       cursor = next.nextCursor
-      const anchor = sentinel
-      const fragment = document.createDocumentFragment()
-      for (const spine of next.books) {
-        if (rendered.has(spine.id)) continue
-        rendered.add(spine.id)
-        fragment.appendChild(
-          spineNode(spine, {
-            selected: spine.id === getState().book,
-            dim: options.isDim(spine),
-            draggable: options.reorderable,
-            onSelect: options.onSelect,
-          }),
-        )
-      }
-      anchor.before(fragment)
+      paint(next.books)
     } catch (err) {
       toastError(err)
       cursor = null
@@ -74,7 +72,8 @@ export function shelfRowNode(options: Options): HTMLElement {
     }
   }
 
-  if (cursor) {
+  const watchTail = () => {
+    if (!cursor) return
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
@@ -88,17 +87,7 @@ export function shelfRowNode(options: Options): HTMLElement {
     observer.observe(sentinel)
   }
 
-  if (options.reorderable) {
-    enableDragReorder(scroller, async (bookId, afterBookId) => {
-      try {
-        await api.reorderShelf(row.id, bookId, afterBookId)
-      } catch (err) {
-        toastError(err)
-      }
-    })
-  }
-
-  return el(
+  const block = el(
     'section',
     { class: 'shelf-block' },
     el(
@@ -118,4 +107,45 @@ export function shelfRowNode(options: Options): HTMLElement {
     scroller,
     el('div', { class: 'plank' }),
   )
+
+  const hydrate = async () => {
+    try {
+      const page = await api.shelfBooks(row.id)
+      cursor = page.nextCursor
+      ghosts.remove()
+      paint(page.books)
+      watchTail()
+    } catch (err) {
+      ghosts.remove()
+      toastError(err)
+    }
+  }
+
+  if (!row.pending) {
+    paint(row.books)
+    watchTail()
+  } else if (row.total > 0) {
+    sentinel.before(ghosts)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        void hydrate()
+      },
+      { rootMargin: '600px 0px' },
+    )
+    observer.observe(block)
+  }
+
+  if (options.reorderable) {
+    enableDragReorder(scroller, async (bookId, afterBookId) => {
+      try {
+        await api.reorderShelf(row.id, bookId, afterBookId)
+      } catch (err) {
+        toastError(err)
+      }
+    })
+  }
+
+  return block
 }

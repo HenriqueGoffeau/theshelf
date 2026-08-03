@@ -76,8 +76,8 @@ export const api = {
     request<{ authenticated: boolean }>('POST', '/api/auth/login', { password }),
   logout: () => request<{ authenticated: boolean }>('POST', '/api/auth/logout'),
 
-  room: (collection?: number | null, perShelf = 40) =>
-    request<Room>('GET', `/api/room${toQuery({ collection, perShelf })}`),
+  room: (collection?: number | null, perShelf = 40, rows = 3) =>
+    request<Room>('GET', `/api/room${toQuery({ collection, perShelf, rows })}`),
 
   shelves: (kind?: 'manual' | 'smart') =>
     request<Shelf[]>('GET', `/api/shelves${toQuery({ kind })}`),

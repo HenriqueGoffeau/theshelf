@@ -330,6 +330,11 @@
   font-size: 20px;
 }
 
+.send-round:disabled {
+  background: var(--ink-10);
+  color: var(--ink-38);
+}
+
 .room-behind {
   filter: blur(1.5px);
   opacity: 0.5;

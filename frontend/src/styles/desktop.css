@@ -170,6 +170,8 @@
 .panel > .stack {
   overflow-y: auto;
   overscroll-behavior: contain;
+  margin-right: -30px;
+  padding-right: 24px;
 }
 
 .panel-head {
@@ -252,8 +254,14 @@
   border-radius: 2px;
 }
 
-.send:hover {
+.send:not(:disabled):hover {
   background: var(--accent-hi);
+}
+
+.send:disabled {
+  background: var(--ink-10);
+  color: var(--ink-38);
+  cursor: default;
 }
 
 .panel-empty {

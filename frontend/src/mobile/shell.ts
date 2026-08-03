@@ -204,7 +204,7 @@ export function mountMobile(app: HTMLElement, onSignedOut: () => void): () => vo
 
   const refreshCounts = async () => {
     try {
-      const room = await api.room(getState().collection, 1)
+      const room = await api.room(getState().collection, 1, 0)
       counts = room.counts
       if (getState().view === 'room') paintHead()
     } catch {}

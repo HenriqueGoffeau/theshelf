@@ -34,7 +34,7 @@ export function desktopRoom(options: RoomOptions): HTMLElement {
     const state = getState()
     let room: Room
     try {
-      room = await api.room(state.collection)
+      room = await api.room(state.collection, 40, hasRoomFilter() ? 200 : 3)
     } catch (err) {
       toastError(err)
       mount(root, el('p', { class: 'empty' }, 'The room would not open.'))

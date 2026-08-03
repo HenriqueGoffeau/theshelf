@@ -160,6 +160,8 @@ export function bookDetail(options: DetailOptions): DetailHandle {
   }
 
   function paintComposer(): void {
+    const isSheet = options.variant === 'sheet'
+
     const pageInput = el('input', {
       type: 'number',
       min: '1',
@@ -173,32 +175,25 @@ export function bookDetail(options: DetailOptions): DetailHandle {
       },
     })
 
-    if (options.variant === 'sheet') {
-      mount(
-        footer,
-        input,
-        el('button', {
-          class: 'send-round',
-          type: 'button',
-          text: '↑',
-          'aria-label': 'Save note',
-          onclick: () => void addNote(input, pageInput),
-        }),
-      )
+    const send = el('button', {
+      class: isSheet ? 'send-round' : 'send',
+      type: 'button',
+      text: isSheet ? '↑' : 'ADD NOTE',
+      'aria-label': isSheet ? 'Add note' : null,
+      disabled: true,
+      onclick: () => void addNote(input, pageInput),
+    })
+
+    input.addEventListener('input', () => {
+      send.disabled = input.value.trim() === ''
+    })
+
+    if (isSheet) {
+      mount(footer, input, send)
       return
     }
 
-    mount(
-      footer,
-      pageInput,
-      input,
-      el('button', {
-        class: 'send',
-        type: 'button',
-        text: 'SAVE',
-        onclick: () => void addNote(input, pageInput),
-      }),
-    )
+    mount(footer, pageInput, input, send)
   }
 
   function noteNode(note: Note): HTMLElement {

@@ -75,6 +75,7 @@ export type ShelfRow = {
   total: number
   books: Spine[]
   nextCursor: string | null
+  pending?: boolean
 }
 
 export type RoomCounts = {
