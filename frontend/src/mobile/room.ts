@@ -82,7 +82,7 @@ export function mobileRoom(options: Options): HTMLElement {
               type: 'button',
               style: { height: '44px', fontSize: '15px' },
               text: '✕ Take it down',
-              onclick: () => void openDeleteShelf(collection, () => setState({ collection: null })),
+              onclick: () => void openDeleteShelf(collection),
             })
           : null,
         el('button', {

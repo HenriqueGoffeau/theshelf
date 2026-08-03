@@ -82,9 +82,7 @@ export function openCollectionMenu(options: Options): void {
               },
               () => {
                 close()
-                void openDeleteShelf(shelf, () => {
-                  if (options.current === shelf.id) options.onPick(null)
-                })
+                void openDeleteShelf(shelf)
               },
             ),
           ),
