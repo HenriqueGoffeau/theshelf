@@ -3,7 +3,7 @@ import { openAddBook } from '../components/addBook.ts'
 import { openCollectionMenu } from '../components/collectionMenu.ts'
 import { shelfRowNode } from '../components/shelfRow.ts'
 import { openShelfBookPicker } from '../components/shelfBookPicker.ts'
-import { openCreateShelf } from '../components/shelvePicker.ts'
+import { openCreateShelf, openDeleteShelf } from '../components/shelvePicker.ts'
 import { el, mount } from '../dom.ts'
 import { STATUS_LABEL, STATUS_ORDER, STATUS_VAR } from '../format.ts'
 import { getState, setState } from '../store.ts'
@@ -76,6 +76,15 @@ export function mobileRoom(options: Options): HTMLElement {
           text: '＋ Shelf',
           onclick: () => openCreateShelf((id) => setState({ collection: id })),
         }),
+        collection
+          ? el('button', {
+              class: 'chip',
+              type: 'button',
+              style: { height: '44px', fontSize: '15px' },
+              text: '✕ Take it down',
+              onclick: () => void openDeleteShelf(collection, () => setState({ collection: null })),
+            })
+          : null,
         el('button', {
           class: 'chip',
           type: 'button',
