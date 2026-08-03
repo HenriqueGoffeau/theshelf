@@ -125,9 +125,15 @@ async function requireShelf(id: number): Promise<ShelfView> {
   return toShelf(shelf)
 }
 
+async function shelfTotal(shelf: ShelfView): Promise<number> {
+  if (shelf.kind === 'manual') return shelf.bookCount
+  return prisma.book.count({ where: smartWhere(shelf) })
+}
+
 export function registerShelfRoutes(router: Router): void {
   router.get('/api/room', async ({ query: q }: Ctx) => {
     const perShelf = queryInt(q, 'perShelf', 40, 1, 200)
+    const eager = queryInt(q, 'rows', 3, 0, 200)
     const collectionId = q.get('collection')
     const scope = collectionId ? idParam(collectionId, 'collection') : null
 
@@ -135,24 +141,38 @@ export function registerShelfRoutes(router: Router): void {
       ? [await requireShelf(scope)]
       : (
           await prisma.shelf.findMany({
-            where: { kind: 'smart' },
             orderBy: [{ position: 'asc' }, { id: 'asc' }],
             select: shelfSelect,
           })
         ).map(toShelf)
 
     const rows = await Promise.all(
-      shelves.map(async (shelf) => {
-        const page = await shelfBooks(shelf, perShelf, null)
-        return {
+      shelves.map(async (shelf, index) => {
+        const head = {
           id: shelf.id,
           name: shelf.name,
           note: shelf.note,
           kind: shelf.kind,
           canReorder: shelf.kind === 'manual',
+        }
+
+        if (scope === null && index >= eager) {
+          return {
+            ...head,
+            total: await shelfTotal(shelf),
+            books: [],
+            nextCursor: null,
+            pending: true,
+          }
+        }
+
+        const page = await shelfBooks(shelf, perShelf, null)
+        return {
+          ...head,
           total: page.total,
           books: page.books,
           nextCursor: page.nextCursor,
+          pending: false,
         }
       }),
     )

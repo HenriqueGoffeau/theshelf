@@ -6,7 +6,7 @@ import { openShelfBookPicker } from '../components/shelfBookPicker.ts'
 import { openCreateShelf, openDeleteShelf } from '../components/shelvePicker.ts'
 import { el, mount } from '../dom.ts'
 import { STATUS_LABEL, STATUS_ORDER, STATUS_VAR } from '../format.ts'
-import { getState, setState } from '../store.ts'
+import { getState, setState, hasRoomFilter } from '../store.ts'
 import { toastError } from '../toast.ts'
 import type { Room, Spine } from '../types.ts'
 
@@ -34,7 +34,7 @@ export function mobileRoom(options: Options): HTMLElement {
     const state = getState()
     let room: Room
     try {
-      room = await api.room(state.collection, 24)
+      room = await api.room(state.collection, 24, hasRoomFilter() ? 200 : 2)
     } catch (err) {
       toastError(err)
       mount(root, el('p', { class: 'empty', style: { padding: '20px' } }, 'The room would not open.'))
